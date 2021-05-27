@@ -9,11 +9,20 @@
 %\fancyhead{}
 
 \input{packages}
+\usepackage[absolute]{textpos}
 %\captionsetup[figure]{belowskip=-5pt, aboveskip=5pt}
 %\setlength{\abovedisplayskip}{0pt}
 %\setlength{\belowdisplayskip}{-5pt}
 
 \begin{document}
+\begin{textblock}{13.5}(1,0.5)\fcolorbox{black}{gray!7!}{
+\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+    \centering
+    \scriptsize
+    The version of this paper published at SIGCOMM 2018 contained a labelling error in Figure 10. This has been corrected in this version.
+\end{minipage}}
+\end{textblock}
+
 \title{Restructuring Endpoint Congestion Control}
 \author{Akshay Narayan, Frank Cangialosi, Deepti Raghavan, Prateesh Goyal}
 \author{Srinivas Narayana, Radhika Mittal, Mohammad Alizadeh, Hari Balakrishnan}

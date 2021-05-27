@@ -1,0 +1,66 @@
+\documentclass[format=acmlarge,10pt,screen,nonacm,natbib=false]{acmart}
+\usepackage{geometry}
+
+\input{packages}
+
+\begin{document}
+%\begin{textblock}{13.5}(1,0.5)\fcolorbox{black}{gray!7!}{
+%\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+%    \centering
+%    \scriptsize
+%    The version of this paper published at SIGCOMM 2018 contained a labelling error in Figure 10. This has been corrected in this version.
+%\end{minipage}}
+%\end{textblock}
+
+\title{Corrigendum: Restructuring Endpoint Congestion Control}
+\author{Akshay Narayan}
+\author{Frank Cangialosi}
+\author{Deepti Raghavan}
+\author{Prateesh Goyal}
+\author{Srinivas Narayana}
+\author{Radhika Mittal} 
+\author{Mohammad Alizadeh}
+\author{Hari Balakrishnan}
+%\affiliation{MIT Computer Science and Artificial Intelligence Laboratory}
+%\email{{akshayn,frankc,deeptir,prateesh,alephtwo,alizadeh,hari}@csail.mit.edu, radhika@eecs.berkeley.edu}
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\newcommand*{\origrightarrow}{$\rightarrow$}
+\let\oldarrow\textrightarrow
+\renewcommand*{\textrightarrow}{\fontfamily{cmr}\selectfont\origrightarrow}
+\renewcommand{\shortauthors}{Akshay Narayan, Frank Cangialosi, Deepti Raghavan, et al.}
+\setcopyright{none}
+\acmPrice{}
+\acmDOI{}
+\makeatletter
+\let\@authorsaddresses\@empty
+\makeatother
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+\pagestyle{plain} % removes running headers
+\fancyfoot{}
+\maketitle
+\thispagestyle{empty}
+
+\begin{sloppypar}
+    In Figure 10 (referenced in Section 7.1.1) of Narayan et al.~\cite{ccp}, the labels ``fixed'' and ``drop'' are swapped in both (a) and (b). The ``fixed'' configuration described in \S7.1.1 is represented in the center facet of both graphs, and the ``drop'' configuration is represented in the right-side facet.
+    We include an updated version of Figure 10 as Figure~\ref{fig:eval:fidelity:cdfs-new} in this corrigendum.
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}{\columnwidth}
+\includegraphics[width=\columnwidth]{img/throughput-cdf-flat}
+\subcaption{Achieved throughput over 1 RTT periods. Note the different scales on the x-axes for the three scenarios.}\label{fig:eval:fidelity:tput-cdf}
+\end{subfigure}
+%
+\begin{subfigure}{\columnwidth}
+\includegraphics[width=\columnwidth]{img/delay-cdf-flat}
+\subcaption{Achieved queueing delay over 1 RTT periods. Note the varying scales on the x-axes for the three scenarios.}\label{fig:eval:fidelity:delay-cdf}
+\end{subfigure}
+%
+\caption{Comparison of achieved throughput over 20 ms periods. The achieved throughput distributions are nearly identical across the three scenarios and two congestion control algorithms evaluated.}\label{fig:eval:fidelity:cdfs-new}
+\end{figure}
+
+\bibliographystyle{abbrv}
+\bibliography{ccp}
+\end{sloppypar}
+
+\end{document}
