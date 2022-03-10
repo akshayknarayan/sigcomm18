@@ -48,13 +48,13 @@ such an interface, but this effort needs to be undertaken only once for each dat
 
 We use the term {\em Congestion Control Plane (CCP)} to refer to this off-datapath module. Running congestion control in the CCP offers the following benefits:
 \begin{enumerate}
-    \item {\bf Write-once, run-anywhere:} One can write a congestion control algorithm once and run it on any datapath that supports the specified interface. 
+    \item \textbf{Write-once, run-anywhere:} One can write a congestion control algorithm once and run it on any datapath that supports the specified interface. 
     We describe several algorithms running on three datapaths: the Linux kernel, mTCP/DPDK, and QUIC, and show algorithms running for the first time on certain datapaths (e.g., Cubic on mTCP/DPDK and Copa on QUIC).
-    \item {\bf Higher pace of development:} With good abstractions,
+    \item \textbf{Higher pace of development:} With good abstractions,
       a congestion control designer can focus on the algorithmic essentials
       without worrying about the details and data structures of the
       datapath. The resulting code is easier to read and maintain. In our implementation, congestion control algorithms in CCP are written in Rust or Python and run in user space. 
-    \item {\bf New capabilities:} CCP makes it easier to provide new
+    \item \textbf{New capabilities:} CCP makes it easier to provide new
       capabilities, such as aggregate control of multiple flows~\cite{cm}, and algorithms that require sophisticated computation (e.g., signal processing, machine learning, \etc) running in \userspace programming environments. 
       %These algorithms are hard to write as window updates on incoming ACKs.
       %All the benefits of a \userspace programming environment (libraries, debuggers, \etc) will be available to       developers.

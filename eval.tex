@@ -2,7 +2,7 @@
 \label{sec:eval}
 \begin{figure}[t]
 \centering
-    \includegraphics[width=\columnwidth]{img/cubic-3-cwnd-evo-new}
+    \includegraphics[width=\columnwidth]{ccp/img/cubic-3-cwnd-evo-new}
     \caption{Cubic in CCP matches Cubic in Linux TCP.}\label{fig:eval:fidelity:time}
 \end{figure}
 
@@ -47,12 +47,12 @@ Overall, both distributions are close, suggesting that CCP's implementations mak
 \begin{figure}[t]
 \centering
 \begin{subfigure}{\columnwidth}
-\includegraphics[width=\columnwidth]{img/throughput-cdf-flat}
+\includegraphics[width=\columnwidth]{ccp/img/throughput-cdf-flat}
 \subcaption{Achieved throughput over 1 RTT periods. Note the different scales on the x-axes for the three scenarios.}\label{fig:eval:fidelity:tput-cdf}
 \end{subfigure}
 %
 \begin{subfigure}{\columnwidth}
-\includegraphics[width=\columnwidth]{img/delay-cdf-flat}
+\includegraphics[width=\columnwidth]{ccp/img/delay-cdf-flat}
 \subcaption{Achieved queueing delay over 1 RTT periods. Note the varying scales on the x-axes for the three scenarios.}\label{fig:eval:fidelity:delay-cdf}
 \end{subfigure}
 %
@@ -65,17 +65,17 @@ Overall, both distributions are close, suggesting that CCP's implementations mak
 \begin{figure}[t]
 \centering
 \begin{subfigure}{\columnwidth}
-\includegraphics[width=\columnwidth]{img/small_fcts}
+\includegraphics[width=\columnwidth]{ccp/img/small_fcts}
 \subcaption{0-10KB Flows}\label{fig:eval:fidelity:fct:sml}
 \end{subfigure}
 %
 \begin{subfigure}{\columnwidth}
-\includegraphics[width=\columnwidth]{img/med_fcts}
+\includegraphics[width=\columnwidth]{ccp/img/med_fcts}
 \subcaption{10KB-1MB Flows}\label{fig:eval:fidelity:fct:med}
 \end{subfigure}
 %
 \begin{subfigure}{\columnwidth}
-\includegraphics[width=\columnwidth]{img/big_fcts}
+\includegraphics[width=\columnwidth]{ccp/img/big_fcts}
 \subcaption{1MB+ Flows}\label{fig:eval:fidelity:fct:big}
 \end{subfigure}
 %
@@ -103,7 +103,7 @@ Across all flow sizes, CCP achieves FCTs 0.02\% lower than the kernel in the med
 \label{sec:eval:whyfold:stale}
 \begin{figure}[t]
 \centering
-    \includegraphics[width=\columnwidth]{img/ipc}
+    \includegraphics[width=\columnwidth]{ccp/img/ipc}
     \caption{Minimum time required to send information to the datapath and receive a response using different IPC mechanisms.}\label{fig:eval:ipc-latency}
 \end{figure}
 
@@ -123,12 +123,12 @@ In all cases, the $95^{\text{th}}$ percentile latency is less than $30$ $\mu$s.
 \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\columnwidth]{img/tputs}
+        \includegraphics[width=\columnwidth]{ccp/img/tputs}
         \subcaption{Achieved localhost throughput as the number of flows increases}\label{fig:eval:perf:numflows}
     \end{subfigure}
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\columnwidth]{img/10G_cpu_util_new}
+        \includegraphics[width=\columnwidth]{ccp/img/10G_cpu_util_new}
         \subcaption{CPU Utilization when saturating a 10 Gbit/s link.}\label{fig:eval:perf:10g}
     \end{subfigure}
     \caption{CCP can handle many concurrent flows without significant CPU overhead. Error bars show standard deviation.}\label{fig:eval:perf}
@@ -138,12 +138,12 @@ In all cases, the $95^{\text{th}}$ percentile latency is less than $30$ $\mu$s.
     \centering
     \begin{subfigure}{\columnwidth}
     \centering
-    \includegraphics[width=\columnwidth]{img/10g-rct}
+    \includegraphics[width=\columnwidth]{ccp/img/10g-rct}
     \subcaption{Tail flow completion time at 10 Gbit/s}\label{fig:eval:lowrtt:10g}
     \end{subfigure}
     \begin{subfigure}{\columnwidth}
     \centering
-    \includegraphics[width=\columnwidth]{img/40g-rct}
+    \includegraphics[width=\columnwidth]{ccp/img/40g-rct}
     \subcaption{Tail flow completion time at 40 Gbit/s}\label{fig:eval:lowrtt:40g}
     \end{subfigure}
     \caption{Mean tail completion across 50 simulations. While at 10 Gbit/s even rare reporting (every 50 RTTs) has limited overhead (at most 20\%), at 40 Gbit/s, a 1 ms reporting period is necessary to avoid performance degradation.}

@@ -2,7 +2,7 @@
 %
 \begin{figure}[t]
 \centering
-    \includegraphics[width=\columnwidth]{img/ccp_design_sigcomm}
+    \includegraphics[width=\columnwidth]{ccp/img/ccp_design_sigcomm}
     \caption{Congestion control algorithms in CCP are distinct from the application and datapath.
     Users specify an \texttt{onCreate()} handler which CCP calls when a new flow begins. 
     In this handler, algorithms install (1) a datapath program. 
@@ -239,7 +239,7 @@ CCP's split programming model enables this flexible partitioning of functionalit
 
 \begin{figure}[t]
 \centering
-    \includegraphics[width=\columnwidth]{img/bbr}
+    \includegraphics[width=\columnwidth]{ccp/img/bbr}
     \caption{
     Our CCP implementation of BBR used for a bulk transfer over a 48 Mbit/s link with a 20 ms RTT and 2 BDPs of buffering. The bandwidth probe phase can be seen in the oscillation of the queueing delay, and the RTT probe phase can be seen in the periodic dips in throughput.
     }\label{fig:ccp:bbr}
@@ -278,7 +278,7 @@ fn onReport(...) {
 
 \begin{figure}
     \centering
-    \includegraphics[width=\columnwidth]{img/ss-evo}
+    \includegraphics[width=\columnwidth]{ccp/img/ss-evo}
     \caption{Different implementations of slow start have different window update characteristics. The control pattern implementation is rate-based, so we show the congestion window corresponding to the achieved throughput over each RTT.}
     \label{fig:ccp:ss}
 \end{figure}
