@@ -28,6 +28,8 @@ We expect and indeed observe minor deviations as the connection progresses and s
 not only does CCP's implementation of Cubic exhibit a window update consistent with a cubic increase function, but its updates closely match the kernel implementation.
 
 For the remainder of this subsection, we compare the performance of CCP and kernel implementations of NewReno and Cubic on three metrics (throughput and delay in \S\ref{sec:eval:fidelity:tput-delay}, and FCT in \S\ref{sec:eval:fidelity:fct}) and three scenarios, all using Mahimahi.
+\afterpage{\FloatBarrier}
+\afterpage{\clearpage}
 
 \subsubsection{Throughput and Delay.}
 \label{sec:eval:fidelity:tput-delay}
@@ -119,39 +121,23 @@ We test three IPC mechanisms: Unix-domain sockets~\cite{unix-domain}, a convenie
 
 In all cases, the $95^{\text{th}}$ percentile latency is less than $30$ $\mu$s. 
 
-\begin{figure*}[t]
+\subsubsection{Scalability.}
+\label{sec:eval:whyfold:scale}
+
+\begin{figure}
 \centering
-    \begin{subfigure}{0.48\textwidth}
+    \begin{subfigure}{\columnwidth}
         \centering
         \includegraphics[width=\columnwidth]{ccp/img/tputs}
         \subcaption{Achieved localhost throughput as the number of flows increases}\label{fig:eval:perf:numflows}
     \end{subfigure}
-    \begin{subfigure}{0.48\textwidth}
+    \begin{subfigure}{\columnwidth}
         \centering
         \includegraphics[width=\columnwidth]{ccp/img/10G_cpu_util_new}
         \subcaption{CPU Utilization when saturating a 10 Gbit/s link.}\label{fig:eval:perf:10g}
     \end{subfigure}
     \caption{CCP can handle many concurrent flows without significant CPU overhead. Error bars show standard deviation.}\label{fig:eval:perf}
-\end{figure*}
-
-\begin{figure}
-    \centering
-    \begin{subfigure}{\columnwidth}
-    \centering
-    \includegraphics[width=\columnwidth]{ccp/img/10g-rct}
-    \subcaption{Tail flow completion time at 10 Gbit/s}\label{fig:eval:lowrtt:10g}
-    \end{subfigure}
-    \begin{subfigure}{\columnwidth}
-    \centering
-    \includegraphics[width=\columnwidth]{ccp/img/40g-rct}
-    \subcaption{Tail flow completion time at 40 Gbit/s}\label{fig:eval:lowrtt:40g}
-    \end{subfigure}
-    \caption{Mean tail completion across 50 simulations. While at 10 Gbit/s even rare reporting (every 50 RTTs) has limited overhead (at most 20\%), at 40 Gbit/s, a 1 ms reporting period is necessary to avoid performance degradation.}
-    \label{fig:eval:lowrtt}
 \end{figure}
-
-\subsubsection{Scalability.}
-\label{sec:eval:whyfold:scale}
 
 CCP naturally has nonzero overhead since more context switches must occur to make congestion control decisions in user-space.
 We test two scenarios as the number of flows in the system increases exponentially from $1$ to $64$.
@@ -170,6 +156,22 @@ In both the CPU utilization and the throughput micro-benchmarks, the differences
 \subsection{Low-RTT and High Bandwidth Paths}
 \label{sec:eval:lowrtt}
 
+\begin{figure}
+    \centering
+    \begin{subfigure}{\columnwidth}
+    \centering
+    \includegraphics[width=\columnwidth]{ccp/img/10g-rct}
+    \subcaption{Tail flow completion time at 10 Gbit/s}\label{fig:eval:lowrtt:10g}
+    \end{subfigure}
+    \begin{subfigure}{\columnwidth}
+    \centering
+    \includegraphics[width=\columnwidth]{ccp/img/40g-rct}
+    \subcaption{Tail flow completion time at 40 Gbit/s}\label{fig:eval:lowrtt:40g}
+    \end{subfigure}
+    \caption{Mean tail completion across 50 simulations. While at 10 Gbit/s even rare reporting (every 50 RTTs) has limited overhead (at most 20\%), at 40 Gbit/s, a 1 ms reporting period is necessary to avoid performance degradation.}
+    \label{fig:eval:lowrtt}
+\end{figure}
+
 To demonstrate it is feasible to separate congestion control from the datapath even in low-RTT and high bandwidth situations, we simulate a datacenter incast scenario using ns-2~\cite{ns2}.
 We model CCP by imposing both forms of delays due to CCP: (i) the period with which actions can be taken (the reporting period) and, (ii) the staleness after which sent messages arrive in CCP. We used our microbenchmarks in \S\ref{sec:eval:whyfold:stale} to set the staleness to 20~$\mu$s, and vary the reporting interval since it is controlled by algorithm implementations. 
 We used a $20$ $\mu$s RTT with a 50-to-1 incast traffic pattern across $50$ flows with link speeds of $10$ and $40$ Gbit/s. To increase the statistical significance of our results, we introduce a small random jitter to flow start times ($<$10$ \mu$s with 10 Gbit/s bandwidth and $<$2.5 $\mu$s with 40 Gbit/s bandwidth) and run each point $50$ times with a different simulator random seed value and report the mean.
@@ -183,3 +185,5 @@ Meanwhile, at $40$ Gbit/s the slowdown over the baseline increases with the repo
 Similar to the results in \S\ref{sec:eval:fidelity:fct}, the short flows and long flows are both unaffected by the reporting period because the short flows complete too quickly and the long flows spend much of their time with large congestion windows regardless of the window update.
 Indeed, at $100$ $\mu$s ($10$ RTTs), the tail completion time is within $10$\% of the baseline; as the reporting increases, the tail completion time increases to over $2\times$ the baseline. 
 This nevertheless suggests that when reporting intervals are kept to small multiples of the RTT, tail completion time does not suffer.
+\afterpage{\FloatBarrier}
+\afterpage{\clearpage}
