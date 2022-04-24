@@ -1,8 +1,14 @@
 \section{Writing Algorithms in CCP}
+\label{sec:ccp}
 %
-\begin{figure}[t]
+Figure~\ref{fig:design} shows the control loop of a congestion control algorithm in CCP.
+Users implement two callback handlers (\ct{onCreate()} and \ct{onReport()}) in the CCP agent
+and one or more datapath programs.
+When a new flow is created, CCP's datapath component invokes the \ct{onCreate()} handler.
+The implementation of \ct{onCreate()} must install an initial datapath program for that flow.
+\begin{figure}
 \centering
-    \includegraphics[width=\columnwidth]{ccp/img/ccp_design_sigcomm}
+    \includegraphics[width=0.95\columnwidth]{ccp/img/ccp_design_sigcomm}
     \caption{Congestion control algorithms in CCP are distinct from the application and datapath.
     Users specify an \texttt{onCreate()} handler which CCP calls when a new flow begins. 
     In this handler, algorithms install (1) a datapath program. 
@@ -11,7 +17,43 @@
     }\label{fig:design}
 \end{figure}
 %
-\label{sec:ccp}
+Datapath programs could compute summaries over per-packet
+congestion signals (such as a minimum packet delay or a moving average of packet
+delivery rate) and report summaries or high priority conditions
+(such as loss) to the CCP agent.
+On a report, the CCP agent invokes the \ct{onReport()} handler
+which contains the bulk of the logic of the congestion control algorithm.
+The \ct{onReport()} function computes and installs the flow's congestion
+window or sending rate using the signals from the datapath report.
+It may also replace the datapath program entirely with different logic.
+
+\subsection{Datapath Program Abstractions}
+\label{s:ccp:datapath_programs}
+CCP's datapath programs are written in a simple domain specific language.
+These programs exist in order to provide a per ACK execution environment, where algorithms can define and update variables per ACK and perform \textit{control actions}, in response to the values of these variables.
+
+Listing~\ref{lst:design:simple_datapath_prog} shows a program that counts the cumulative number of packets acknowledged and lost and reports these counters immediately upon a loss.
+\begin{listing}
+{\footnotesize
+\begin{minted}[xleftmargin=\parindent,linenos]{lisp}
+(def (Report (volatile acked 0) (volatile lost 0)))
+(when true
+  (:= Report.acked (+ Report.acked Ack.bytes_acked))
+  (:= Report.lost  (+ Report.lost  Ack.lost_pkts_sample))
+  (fallthrough))
+(when (> Report.lost 0) (report))
+\end{minted}
+\caption{A simple datapath program to count bytes acked and report on losses.} \label{lst:design:simple_datapath_prog}
+}
+\end{listing}
+The first statement of the program allows users to define custom variables.
+The ``Report'' block signifies that these variables should be included in the report message sent to the CCP agent.
+The \ct{volatile} marker means that these variables should be reset to their initial values, 0, after every report to the CCP agent.
+
+Following the \texttt{def} block, \textit{fold functions} provide custom summaries over primitive congestion signals.
+Datapath programs have read access to these \textit{primitive congestion signals} (prefixed with ``\ct{Ack.}'' or ``\ct{Flow.}'' to specify their measurement period), which are exposed by the datapath on every incoming packet. Such signals include the round trip delay sample, the number of bytes the datapath believes have been dropped by the network, and the delivery rates of packets. Table ~\ref{tab:api} enumerates the primitive congestion signals we support.
+Users can write simple mathematical summaries over these primitive signals, as shown in Lines 3-4 of Listing~\ref{lst:design:simple_datapath_prog}.
+%
 \begin{table}
     \centering
     \footnotesize
@@ -60,51 +102,8 @@
     \caption{Datapath language: congestion signals, operators, and scopes.}\label{tab:api}
 \end{table}
 
-Figure~\ref{fig:design} shows the control loop of a congestion control algorithm in CCP.
-Users implement two callback handlers (\ct{onCreate()} and \ct{onReport()}) in the CCP agent
-and one or more datapath programs.
-When a new flow is created, CCP's datapath component invokes the \ct{onCreate()} handler.
-The implementation of \ct{onCreate()} must install an initial datapath program for that flow.
-%
-Datapath programs could compute summaries over per-packet
-congestion signals (such as a minimum packet delay or a moving average of packet
-delivery rate) and report summaries or high priority conditions
-(such as loss) to the CCP agent.
-On a report, the CCP agent invokes the \ct{onReport()} handler
-which contains the bulk of the logic of the congestion control algorithm.
-The \ct{onReport()} function computes and installs the flow's congestion
-window or sending rate using the signals from the datapath report.
-It may also replace the datapath program entirely with different logic.
-
-\subsection{Datapath Program Abstractions}
-\label{s:ccp:datapath_programs}
-CCP's datapath programs are written in a simple domain specific language.
-These programs exist in order to provide a per ACK execution environment, where algorithms can define and update variables per ACK and perform \textit{control actions}, in response to the values of these variables.
-
-Figure~\ref{lst:design:simple_datapath_prog} shows a program that counts the cumulative number of packets acknowledged and lost and reports these counters immediately upon a loss.
-\begin{figure}[t]
-{\footnotesize
-\begin{minted}[xleftmargin=\parindent,linenos]{lisp}
-(def (Report (volatile acked 0) (volatile lost 0)))
-(when true
-  (:= Report.acked (+ Report.acked Ack.bytes_acked))
-  (:= Report.lost  (+ Report.lost  Ack.lost_pkts_sample))
-  (fallthrough))
-(when (> Report.lost 0) (report))
-\end{minted}
-\caption{A simple datapath program to count bytes acked and report on losses.} \label{lst:design:simple_datapath_prog}
-}
-\end{figure}
-The first statement of the program allows users to define custom variables.
-The ``Report'' block signifies that these variables should be included in the report message sent to the CCP agent.
-The \ct{volatile} marker means that these variables should be reset to their initial values, 0, after every report to the CCP agent.
-
-Following the \texttt{def} block, \textit{fold functions} provide custom summaries over primitive congestion signals.
-Datapath programs have read access to these \textit{primitive congestion signals} (prefixed with ``\ct{Ack.}'' or ``\ct{Flow.}'' to specify their measurement period), which are exposed by the datapath on every incoming packet. Such signals include the round trip delay sample, the number of bytes the datapath believes have been dropped by the network, and the delivery rates of packets. Table ~\ref{tab:api} enumerates the primitive congestion signals we support.
-Users can write simple mathematical summaries over these primitive signals, as shown in Lines 3-4 of Figure~\ref{lst:design:simple_datapath_prog}.
-
 Finally, algorithms can perform control actions in response to conditions defined by the fold function variables, \eg updating a rate or cwnd or reporting the user defined variables to the CCP agent.
-As shown in Figure~\ref{lst:design:simple_datapath_prog}, the program defines a series of \ct{when} clauses, and performs the following block only if the condition was evaluated to true.
+As shown in Listing~\ref{lst:design:simple_datapath_prog}, the program defines a series of \ct{when} clauses, and performs the following block only if the condition was evaluated to true.
 
 CCP's datapath program language provides an event driven programming model.
 The condition \ct{(when true...)} signifies that the body should be evaluated on every packet.
@@ -186,6 +185,14 @@ A BBR sender estimates the rate of packets delivered to the receiver, and
 sets its sending rate to the maximum delivered rate (over a sliding time window), 
 which is believed to be the rate of the bottleneck link between the sender and the receiver.
 
+\begin{figure}
+\centering
+    \includegraphics[width=0.9\textwidth]{ccp/img/bbr}
+    \caption{
+    Our CCP implementation of BBR used for a bulk transfer over a 48 Mbit/s link with a 20 ms RTT and 2 BDPs of buffering. The bandwidth probe phase can be seen in the oscillation of the queueing delay, and the RTT probe phase can be seen in the periodic dips in throughput.
+    }\label{fig:ccp:bbr}
+\end{figure}
+
 This filter over the received rate is expressed simply in a fold function:
 {\footnotesize
 \begin{minted}{lisp}
@@ -237,22 +244,14 @@ handler by installing a new fold function.
 %
 CCP's split programming model enables this flexible partitioning of functionality.
 
-\begin{figure}[t]
-\centering
-    \includegraphics[width=\columnwidth]{ccp/img/bbr}
-    \caption{
-    Our CCP implementation of BBR used for a bulk transfer over a 48 Mbit/s link with a 20 ms RTT and 2 BDPs of buffering. The bandwidth probe phase can be seen in the oscillation of the queueing delay, and the RTT probe phase can be seen in the periodic dips in throughput.
-    }\label{fig:ccp:bbr}
-\end{figure}
-
 \subsection{Case Study: Slow Start}
 \label{s:ccp:ss}
 
 Because algorithms no longer make decisions upon every ACK, CCP changes the way in which developers should think about congestion control, and correspondingly provides multiple implementation choices. As a result, new issues arise about where to place algorithm functionality. We discuss the involved trade-offs with an illustrative example: slow start.
 
-Slow start is a widely used congestion control module in which a connection probes for bandwidth by multiplicatively increasing its congestion window (\texttt{cwnd}) every RTT. Most implementations increment \texttt{cwnd} per ACK, either by the number of bytes acknowledged in the ACK, or by 1 MSS. One way to implement slow start is to retain the logic entirely in CCP, and measure the size of the required window update from datapath reports. We show an example in Figure~\ref{lst:ccp:ss}. This implementation strategy is semantically closest in behavior to native datapath implementations.
+Slow start is a widely used congestion control module in which a connection probes for bandwidth by multiplicatively increasing its congestion window (\texttt{cwnd}) every RTT. Most implementations increment \texttt{cwnd} per ACK, either by the number of bytes acknowledged in the ACK, or by 1 MSS. One way to implement slow start is to retain the logic entirely in CCP, and measure the size of the required window update from datapath reports. We show an example in Listing~\ref{lst:ccp:ss}. This implementation strategy is semantically closest in behavior to native datapath implementations.
 
-\begin{figure}[t]
+\begin{listing}
 {\footnotesize
 \begin{minted}{rust}
 fn create(...) {
@@ -271,21 +270,19 @@ fn onReport(...) {
 }
 \end{minted}
 }
-\vspace{-10pt}
 \caption{A CCP implementation of slow start.} \label{lst:ccp:ss}
-\vspace{-15pt}
-\end{figure}
+\end{listing}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\columnwidth]{ccp/img/ss-evo}
+    \includegraphics[width=0.95\columnwidth]{ccp/img/ss-evo}
     \caption{Different implementations of slow start have different window update characteristics. The control pattern implementation is rate-based, so we show the congestion window corresponding to the achieved throughput over each RTT.}
     \label{fig:ccp:ss}
 \end{figure}
 
 For some workloads this approach may prove problematic, depending on the parameters of the algorithm. If the reporting period defined is large, then infrequent slow start updates can cause connections to lose throughput.
 Figure~\ref{fig:ccp:ss} demonstrates that, on a $48$ Mbps, $100$ ms RTT link, different implementations of slow start exhibit differing window updates relative to the Linux kernel baseline.
-A version with a 1-RTT reporting period lags behind the native datapath implementation. It is also possible to implement slow start within the datapath either by using congestion window increase (Figure~\ref{lst:ccp:ssfold}), or by using rate based control: 
+A version with a 1-RTT reporting period lags behind the native datapath implementation. It is also possible to implement slow start within the datapath either by using congestion window increase (Listing~\ref{lst:ccp:ssfold}), or by using rate based control: 
 
 {\footnotesize
 \begin{minted}{lisp}
@@ -303,7 +300,7 @@ On one extreme, algorithms may be implemented almost entirely in CCP, using the 
 On the other extreme, CCP algorithms may merely specify transitions between in-datapath fold functions implementing the primary control logic of the algorithm.
 Ultimately, users are able to choose the algorithm implementation best suited to their congestion control logic and application needs.
 
-\begin{figure}[t]
+\begin{listing}[t]
 {\footnotesize
 \begin{minted}{rust}
 fn create(...) {
@@ -316,4 +313,4 @@ fn onReport(...) { /* exit slow start */ }
 \end{minted}
 }
 \caption{A within-fold implementation of slow start. Note that CCP algorithm code is not invoked at all until the connection experiences its first loss.} \label{lst:ccp:ssfold}
-\end{figure}
+\end{listing}
