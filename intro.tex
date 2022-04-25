@@ -23,10 +23,8 @@ Second, the kernel TCP stack is but one example of a {\em datapath}, the term we
 %\begin{figure}[t]
 %\centering
 %    \includegraphics[width=\columnwidth]{img/cc-timeline-nocongsig}
-%    \vspace{-20pt}
 %    \caption{Congestion control algorithms over the years.}\label{fig:cctimeline}
 %    %\caption{As link characteristics diversify, developers have developed a battery of congestion control algorithms, from the ``long-fat pipe'' schemes of the mid-2000s~\cite{westwood, veno, htcp, hybla} to purely delay-based~\cite{vegas, fasttcp, ledbat, nv, timely} and hybrid loss-delay~\cite{illinois, compound} schemes, and more recent proposals~\cite{pcc, remy, sprout, bbr, copa, abc}.}
-%    \vspace{-16pt}
 %\end{figure}
 
 New datapaths offer limited choices for congestion control because implementing these algorithms correctly takes considerable time and effort. 
@@ -60,7 +58,6 @@ We use the term {\em Congestion Control Plane (CCP)} to refer to this off-datapa
       %All the benefits of a \userspace programming environment (libraries, debuggers, \etc) will be available to       developers.
 \end{enumerate}
 
-%\vspace{0.1in}
 \smallskip 
 This paper's contributions include:
 

@@ -86,6 +86,5 @@ All other necessary functionality, most notably interpreting and running the dat
         \texttt{Flow.rate\_incoming}                                       & \texttt{rate\_sample.delivered / Delta(tcp\_sock.tcp\_mstamp)}  \\
         \texttt{Flow.bytes\_in\_flight}, \texttt{Flow.packets\_in\_flight} & \texttt{tcp\_packets\_in\_flight(tcp\_sock)} \\
     \end{tabular}
-    %\vspace{0.075in}
     \caption{Definition of CCP primitives in terms of the \texttt{tcp\_sock} and \texttt{rate\_sample} structures, for the Linux kernel datapath.}\label{tab:api:kernel}
 \end{table}
